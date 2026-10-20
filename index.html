@@ -201,15 +201,19 @@ h2{font-family:var(--display);font-weight:800;font-size:clamp(28px,6.4vw,42px);l
             <li class="glass"><div><h3>Get your best match</h3><p>Kimikoo picks the outfit and explains why it works.</p></div></li>
             <li class="glass"><div><h3>Finish the look</h3><p>Bag, shoes, accessories, hair and perfume ideas.</p></div></li>
           </ol>
+          <p class="lede">Next: 6 quick questions. It takes about a minute and helps us build Kimikoo around what you need.</p>
         </div>
       </section>
 
-      <!-- 3. Email -->
-      <section class="slide" aria-label="Your email">
+      <!-- question slides are added here by the script -->
+      <section class="slide" id="qAnchor" hidden></section>
+
+      <!-- Email, after the questions -->
+      <section class="slide" aria-label="Your email" id="emailSlide">
         <div class="slide-inner">
-          <div class="eyebrow">Before you get access</div>
-          <h2>Answer 6 quick questions to unlock free beta access.</h2>
-          <p class="lede">It takes about a minute and helps us build Kimikoo around what you actually need.</p>
+          <div class="eyebrow">Last step</div>
+          <h2>Where should we send your free beta access?</h2>
+          <p class="lede">Thank you for your answers. Add your email to save them and unlock the beta.</p>
           <form class="field" id="emailForm" novalidate>
             <label for="email">Your email</label>
             <input class="input" id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required>
@@ -219,8 +223,6 @@ h2{font-family:var(--display);font-weight:800;font-size:clamp(28px,6.4vw,42px);l
         </div>
       </section>
 
-      <!-- question slides are added here by the script -->
-      <section class="slide" id="qAnchor" hidden></section>
 
       <!-- 10. Install -->
       <section class="slide" aria-label="Add Kimikoo to your phone">
@@ -319,7 +321,7 @@ var QUESTIONS = [
 
   var track = document.getElementById("track");
   var slides = Array.prototype.slice.call(track.querySelectorAll(".slide"));
-  var EMAIL_I = 2, FIRST_Q = 3, LAST_Q = FIRST_Q + QUESTIONS.length - 1, INSTALL_I = LAST_Q + 1, FINAL_I = INSTALL_I + 1;
+  var FIRST_Q = 2, LAST_Q = FIRST_Q + QUESTIONS.length - 1, EMAIL_I = slides.indexOf(document.getElementById("emailSlide")), INSTALL_I = EMAIL_I + 1, FINAL_I = INSTALL_I + 1;
   var current = 0;
   function indexOf(s){ return slides.indexOf(s); }
 
@@ -337,8 +339,8 @@ var QUESTIONS = [
   }
   function labelFor(i){
     if (i === 0) return "Start";
-    if (i === EMAIL_I) return "Start the questions";
-    if (i === LAST_Q) return "Finish";
+    if (i === 1) return "Start the questions";
+    if (i === EMAIL_I) return "Save and continue";
     if (i === INSTALL_I) return "I'm ready";
     return "Next";
   }
