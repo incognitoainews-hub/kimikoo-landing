@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Kimikoo Survey Results</title>
+<link rel="icon" href="https://kimikoo.vercel.app/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,800&family=Manrope:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: private dashboard. Headline numbers first, then one bar card per question, then people and sources, then the full table. */
+:root{
+  --ink:#08080a;
+  --surface:#121215;
+  --surface-2:#1a1a1f;
+  --line:rgba(255,255,255,.10);
+  --fg:#f5f5f7;
+  --muted:#a1a1a8;
+  --faint:#6d6d75;
+  --bar:#5b5b66;
+  --bar-top:#f5f5f7;
+  --good:#7fd4a8;
+  --bad:#ff8a8a;
+  --display:"Bodoni Moda","Didot","Times New Roman",serif;
+  --body:"Manrope",-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ink);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:20px 60px;display:grid;gap:22px}
+
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.mark{font-family:var(--display);font-weight:800;font-size:26px}
+.mark span{font-family:var(--body);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-left:10px;vertical-align:middle}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{padding:9px 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);font-weight:700;font-size:14px;cursor:pointer}
+.btn.primary{background:var(--fg);color:var(--ink);border-color:var(--fg)}
+.btn:disabled{opacity:.5;cursor:default}
+.updated{font-size:12.5px;color:var(--muted)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;min-width:0}
+.card h2{margin:0 0 4px;font-size:16px;font-weight:800;line-height:1.35}
+.card .sub{margin:0 0 16px;font-size:13px;color:var(--muted)}
+.label{font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* stat tiles */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat{display:grid;gap:6px}
+.stat b{font-size:34px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums}
+.stat small{font-size:13px;color:var(--muted)}
+
+/* question cards */
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.qnum{font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.rows{display:grid;gap:12px}
+.row{display:grid;gap:6px}
+.row-top{display:flex;justify-content:space-between;gap:12px;font-size:14px}
+.row-top .ans{min-width:0}
+.row-top .val{flex:none;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:700}
+.row-top .val strong{color:var(--fg)}
+.row.top .ans{font-weight:700}
+.track{height:10px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.fill{height:100%;border-radius:4px;background:var(--bar);min-width:2px;transition:width .5s ease}
+.row.top .fill{background:var(--bar-top)}
+.row.zero .fill{min-width:0}
+
+/* two up */
+.two{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
+
+/* day chart */
+.days{display:flex;align-items:flex-end;gap:4px;height:120px;padding-top:18px}
+.day{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;min-width:0}
+.day i{display:block;width:100%;max-width:28px;border-radius:4px 4px 0 0;background:var(--bar);min-height:2px}
+.day.today i{background:var(--bar-top)}
+.day span{font-size:10.5px;color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap}
+.day em{font-style:normal;font-size:11px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* lists and tables */
+.list{display:grid;gap:8px;max-height:340px;overflow:auto}
+.person{display:grid;gap:2px;padding:10px 12px;border-radius:12px;background:var(--surface-2)}
+.person b{font-size:14px;word-break:break-all}
+.person span{font-size:12.5px;color:var(--muted)}
+.empty{color:var(--muted);font-size:14px;padding:8px 0}
+.tbl-tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.search{flex:1;min-width:200px;padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2)}
+.tbl-wrap{overflow:auto;max-height:520px;border-radius:12px;border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:1100px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{position:sticky;top:0;background:var(--surface-2);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);z-index:1}
+td{color:var(--fg)}
+td.when{white-space:nowrap;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* login */
+.login{max-width:420px;margin:12vh auto 0;display:grid;gap:14px}
+.login h1{font-family:var(--display);font-weight:800;font-size:36px;line-height:1.05;margin:0}
+.login p{margin:0;color:var(--muted)}
+.input{width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2);font-size:16px}
+.input:focus{outline:none;border-color:var(--fg)}
+.msg{font-size:13.5px;min-height:1.3em;color:var(--muted)}
+.msg.err{color:var(--bad)}
+.demo-flag{padding:10px 14px;border-radius:12px;border:1px dashed var(--line);color:var(--muted);font-size:13px}
+
+@media (max-width:900px){.stats{grid-template-columns:1fr 1fr}.qgrid,.two{grid-template-columns:1fr}}
+@media (max-width:420px){.stat b{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="mark">Kimikoo<span>Survey results</span></div>
+    <div class="actions" id="actions" hidden>
+      <span class="updated" id="updated"></span>
+      <button class="btn" id="refreshBtn" type="button">Refresh</button>
+      <button class="btn" id="csvBtn" type="button">Download CSV</button>
+      <button class="btn" id="logoutBtn" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <!-- sign in -->
+  <section class="login" id="login" hidden>
+    <h1>Sign in to see your results.</h1>
+    <p>Use the email you added as a survey admin in Supabase. We'll send you a 6 digit code.</p>
+    <form id="emailStep" novalidate style="display:grid;gap:10px">
+      <input class="input" id="adminEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+      <button class="btn primary" id="sendBtn" type="submit">Send code</button>
+    </form>
+    <form id="codeStep" novalidate style="display:grid;gap:10px" hidden>
+      <input class="input" id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="Code from your email" required>
+      <button class="btn primary" id="verifyBtn" type="submit">Sign in</button>
+      <button class="btn" id="backBtn" type="button">Use a different email</button>
+    </form>
+    <div class="msg" id="loginMsg" role="alert"></div>
+  </section>
+
+  <!-- dashboard -->
+  <main id="dash" hidden style="display:grid;gap:22px">
+    <div class="demo-flag" id="demoFlag" hidden>Sample data for preview. Sign in on kimikoo.com/results.html to see real answers.</div>
+    <section class="stats" aria-label="Summary">
+      <div class="card stat"><span class="label">People</span><b id="sPeople">0</b><small id="sPeopleSub">unique emails</small></div>
+      <div class="card stat"><span class="label">Like the AI stylist</span><b id="sAppeal">0%</b><small>very or somewhat appealing</small></div>
+      <div class="card stat"><span class="label">Would use it</span><b id="sLikely">0%</b><small>very or somewhat likely</small></div>
+      <div class="card stat"><span class="label">Top feature</span><b id="sFeature" style="font-size:18px;line-height:1.3">None yet</b><small id="sFeatureSub"></small></div>
+    </section>
+
+    <section class="qgrid" id="qgrid" aria-label="Answers by question"></section>
+
+    <section class="two">
+      <div class="card">
+        <h2>Responses per day</h2>
+        <p class="sub">Last 14 days, Sri Lanka time</p>
+        <div class="days" id="days"></div>
+      </div>
+      <div class="card">
+        <h2>Where people came from</h2>
+        <p class="sub">From ad links (utm tags) or the referring site</p>
+        <div class="rows" id="sources"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Most interested people</h2>
+      <p class="sub">Answered "Very appealing" and "Very likely". Contact these first.</p>
+      <div class="list" id="fans"></div>
+    </section>
+
+    <section class="card">
+      <h2>All responses</h2>
+      <p class="sub" id="allSub"></p>
+      <div class="tbl-tools"><input class="search" id="search" type="search" placeholder="Search email or answer"></div>
+      <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Email</th><th>Q1 How often</th><th>Q2 Frustration</th><th>Q3 AI stylist</th><th>Q4 Feature</th><th>Q5 Virtual closet</th><th>Q6 Likely to use</th><th>Device</th><th>Source</th></tr></thead><tbody id="tbody"></tbody></table></div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+var SUPABASE_URL = "https://caqexudogrdmrtreyldf.supabase.co";
+var SUPABASE_KEY = "sb_publishable_PKw85b1g18L90zkeU_bvtA_E7U92wXE";
+var TABLE = "beta_survey";
+
+var QUESTIONS = [
+  {key:"q1_frequency", q:"How often do you struggle to decide what to wear?", a:["Almost every day","A few times a week","Only for special occasions","Rarely","Never"]},
+  {key:"q2_frustration", q:"What is your biggest frustration when choosing an outfit?", a:["I have clothes but don't know how to style them","I don't know what suits the occasion","I keep wearing the same outfits","I'm unsure what new clothes to buy","I don't usually struggle with outfits"]},
+  {key:"q3_ai_stylist", q:"How appealing is the idea of having an AI personal stylist?", a:["Very appealing","Somewhat appealing","Not sure yet","Not very appealing","Not appealing at all"]},
+  {key:"q4_feature", q:"Which Kimikoo feature would you be most interested in?", a:["Creating outfits using my existing wardrobe","Finding outfits for specific events","Getting advice before buying new clothes","Getting accessory, hairstyle and perfume suggestions","Receiving styling advice based on my preferences"]},
+  {key:"q5_virtual_closet", q:"How do you feel about having a virtual closet where you can organize your clothes and plan outfits?", a:["Love the idea! I'd definitely use it.","Sounds useful, but I'd need to try it first.","Interesting, but uploading my clothes sounds time-consuming.","I'm not sure I'd find it useful.","I wouldn't be interested."]},
+  {key:"q6_likelihood", q:"If an app like Kimikoo worked well, how likely would you be to use it?", a:["Very likely","Somewhat likely","Not sure","Unlikely","Very unlikely"]}
+];
+
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var demo = location.hash === "#demo";
+  var sb = null, allRows = [];
+  try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e){}
+
+  function el(tag, cls, text){ var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function pct(n, d){ return d ? Math.round(n * 100 / d) : 0; }
+  function lkDate(iso){ return new Date(iso).toLocaleDateString("en-CA",{timeZone:"Asia/Colombo"}); }
+
+  /* ---------- sign in ---------- */
+  function showLogin(msg, isErr){
+    $("dash").hidden = true; $("actions").hidden = true; $("login").hidden = false;
+    $("loginMsg").textContent = msg || ""; $("loginMsg").className = "msg" + (isErr ? " err" : "");
+  }
+  $("emailStep").addEventListener("submit", function(e){
+    e.preventDefault();
+    var email = $("adminEmail").value.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { showLogin("Enter a valid email.", true); return; }
+    if (!sb) { showLogin("Couldn't load the sign in tool. Check your connection and refresh.", true); return; }
+    $("sendBtn").disabled = true; showLogin("Sending code…");
+    sb.auth.signInWithOtp({email: email, options: {shouldCreateUser: false}}).then(function(r){
+      $("sendBtn").disabled = false;
+      if (r.error) { showLogin(/not found|signups not allowed/i.test(r.error.message) ? "No Kimikoo account uses this email. Sign up in the app first, then try again." : r.error.message, true); return; }
+      $("emailStep").hidden = true; $("codeStep").hidden = false;
+      showLogin("We sent a code to " + email + ". Check spam if you don't see it.");
+      $("code").focus();
+    });
+  });
+  $("codeStep").addEventListener("submit", function(e){
+    e.preventDefault();
+    var email = $("adminEmail").value.trim().toLowerCase(), token = $("code").value.replace(/\s/g,"");
+    if (!token) { showLogin("Enter the code from your email.", true); return; }
+    $("verifyBtn").disabled = true; showLogin("Checking code…");
+    sb.auth.verifyOtp({email: email, token: token, type: "email"}).then(function(r){
+      $("verifyBtn").disabled = false;
+      if (r.error) { showLogin("That code didn't work. Check it or send a new one.", true); return; }
+      load();
+    });
+  });
+  $("backBtn").addEventListener("click", function(){ $("codeStep").hidden = true; $("emailStep").hidden = false; showLogin(""); });
+  $("logoutBtn").addEventListener("click", function(){ if (demo) { location.hash = ""; location.reload(); return; } sb.auth.signOut().then(function(){ showLogin("Signed out."); }); });
+  $("refreshBtn").addEventListener("click", function(){ load(); });
+
+  /* ---------- load ---------- */
+  function load(){
+    if (demo) { render(sample()); return; }
+    $("refreshBtn").disabled = true;
+    sb.from(TABLE).select("*").order("created_at", {ascending:false}).limit(10000).then(function(r){
+      $("refreshBtn").disabled = false;
+      if (r.error) { showLogin("Couldn't load answers: " + r.error.message, true); return; }
+      if (!r.data.length) {
+        return sb.auth.getUser().then(function(u){
+          render([]);
+          $("allSub").textContent = "No answers to show. If people have answered, make sure " + ((u.data.user && u.data.user.email) || "your email") + " is in the survey_admins table.";
+        });
+      }
+      render(r.data);
+    });
+  }
+
+  /* ---------- render ---------- */
+  function render(rows){
+    allRows = rows;
+    $("login").hidden = true; $("dash").hidden = false; $("actions").hidden = false; $("demoFlag").hidden = !demo;
+    $("updated").textContent = "Updated " + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+
+    // latest answer per email
+    var seen = {}, people = [];
+    rows.forEach(function(r){ var k = (r.email || "").toLowerCase(); if (!seen[k]) { seen[k] = 1; people.push(r); } });
+    var n = people.length;
+
+    $("sPeople").textContent = n;
+    $("sPeopleSub").textContent = rows.length === n ? "unique emails" : n + " unique of " + rows.length + " responses";
+    $("sAppeal").textContent = pct(people.filter(function(r){ return /^(Very|Somewhat) appealing$/.test(r.q3_ai_stylist); }).length, n) + "%";
+    $("sLikely").textContent = pct(people.filter(function(r){ return /^(Very|Somewhat) likely$/.test(r.q6_likelihood); }).length, n) + "%";
+
+    // question cards
+    var grid = $("qgrid"); grid.innerHTML = "";
+    QUESTIONS.forEach(function(q, qi){
+      var counts = q.a.map(function(a){ return people.filter(function(r){ return r[q.key] === a; }).length; });
+      var max = Math.max.apply(null, counts);
+      var card = el("div","card");
+      card.appendChild(el("div","qnum","Question " + (qi+1)));
+      card.appendChild(el("h2",null,q.q));
+      card.appendChild(el("p","sub", n + (n === 1 ? " answer" : " answers")));
+      var list = el("div","rows");
+      q.a.forEach(function(a, ai){
+        var c = counts[ai], p = pct(c, n);
+        var row = el("div","row" + (c && c === max ? " top" : "") + (c ? "" : " zero"));
+        row.title = a + ": " + c + " people (" + p + "%)";
+        var top = el("div","row-top"); top.appendChild(el("span","ans",a));
+        var v = el("span","val"); var s = el("strong",null,p + "%"); v.appendChild(s); v.appendChild(document.createTextNode("  " + c)); top.appendChild(v);
+        var tr = el("div","track"); var f = el("div","fill"); f.style.width = (n ? (c / n * 100) : 0) + "%"; tr.appendChild(f);
+        row.appendChild(top); row.appendChild(tr); list.appendChild(row);
+      });
+      card.appendChild(list); grid.appendChild(card);
+      if (q.key === "q4_feature") {
+        $("sFeature").textContent = max ? q.a[counts.indexOf(max)] : "None yet";
+        $("sFeatureSub").textContent = max ? pct(max, n) + "% chose this" : "";
+      }
+    });
+
+    // per day
+    var days = $("days"); days.innerHTML = "";
+    var byDay = {}; rows.forEach(function(r){ var d = lkDate(r.created_at); byDay[d] = (byDay[d]||0) + 1; });
+    var list14 = []; for (var i = 13; i >= 0; i--) { var d = new Date(Date.now() - i*864e5); list14.push(lkDate(d.toISOString())); }
+    var dmax = Math.max.apply(null, list14.map(function(d){ return byDay[d]||0; }).concat([1]));
+    list14.forEach(function(d, i){
+      var c = byDay[d] || 0, col = el("div","day" + (i === 13 ? " today" : ""));
+      col.title = d + ": " + c + " responses";
+      col.appendChild(el("em",null,c ? c : ""));
+      var bar = el("i"); bar.style.height = (c / dmax * 100) + "%"; col.appendChild(bar);
+      col.appendChild(el("span",null, i % 2 === 1 || i === 13 ? d.slice(5).replace("-","/") : ""));
+      days.appendChild(col);
+    });
+
+    // sources
+    var src = {}; people.forEach(function(r){ var s = (r.source || "direct"); var m = s.match(/utm_source=([^&]+)/); var k = m ? decodeURIComponent(m[1]) : (s.indexOf("referrer=") === 0 ? s.replace("referrer=","").replace(/^https?:\/\//,"").split("/")[0] : s); src[k] = (src[k]||0) + 1; });
+    var sk = Object.keys(src).sort(function(a,b){ return src[b]-src[a]; }).slice(0,6);
+    var sbox = $("sources"); sbox.innerHTML = "";
+    if (!sk.length) sbox.appendChild(el("div","empty","No responses yet."));
+    sk.forEach(function(k, i){
+      var c = src[k], row = el("div","row" + (i === 0 ? " top" : ""));
+      var top = el("div","row-top"); top.appendChild(el("span","ans",k)); var v = el("span","val"); v.appendChild(el("strong",null,pct(c,n) + "%")); v.appendChild(document.createTextNode("  " + c)); top.appendChild(v);
+      var tr = el("div","track"); var f = el("div","fill"); f.style.width = (c/n*100) + "%"; tr.appendChild(f);
+      row.appendChild(top); row.appendChild(tr); sbox.appendChild(row);
+    });
+
+    // fans
+    var fans = people.filter(function(r){ return r.q3_ai_stylist === "Very appealing" && r.q6_likelihood === "Very likely"; });
+    var fbox = $("fans"); fbox.innerHTML = "";
+    if (!fans.length) fbox.appendChild(el("div","empty","Nobody yet. They'll appear here as answers come in."));
+    fans.forEach(function(r){
+      var p = el("div","person"); p.appendChild(el("b",null,r.email));
+      p.appendChild(el("span",null,"Wants: " + (r.q4_feature || "not answered") + " · Struggles: " + (r.q1_frequency || "not answered").toLowerCase()));
+      fbox.appendChild(p);
+    });
+
+    drawTable();
+  }
+
+  function drawTable(){
+    var term = $("search").value.trim().toLowerCase();
+    var rows = allRows.filter(function(r){ return !term || JSON.stringify(r).toLowerCase().indexOf(term) !== -1; });
+    var tb = $("tbody"); tb.innerHTML = "";
+    rows.slice(0, 1000).forEach(function(r){
+      var tr = el("tr");
+      var when = new Date(r.created_at).toLocaleString("en-GB",{timeZone:"Asia/Colombo", day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"});
+      [when, r.email, r.q1_frequency, r.q2_frustration, r.q3_ai_stylist, r.q4_feature, r.q5_virtual_closet, r.q6_likelihood, r.device, r.source].forEach(function(v, i){ tr.appendChild(el("td", i === 0 ? "when" : null, v || "")); });
+      tb.appendChild(tr);
+    });
+    $("allSub").textContent = rows.length + (rows.length === 1 ? " response" : " responses") + (term ? " match your search" : ", newest first") + (rows.length > 1000 ? ". Showing the first 1000." : "");
+  }
+  $("search").addEventListener("input", drawTable);
+
+  $("csvBtn").addEventListener("click", function(){
+    var cols = ["created_at","email"].concat(QUESTIONS.map(function(q){ return q.key; })).concat(["device","source","language"]);
+    var esc = function(v){ v = v == null ? "" : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v; };
+    var csv = cols.join(",") + "\n" + allRows.map(function(r){ return cols.map(function(c){ return esc(r[c]); }).join(","); }).join("\n");
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob(["﻿" + csv], {type:"text/csv"}));
+    a.download = "kimikoo-survey-" + lkDate(new Date().toISOString()) + ".csv";
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  function sample(){
+    var out = [], rnd = 7;
+    function r(){ rnd = (rnd * 9301 + 49297) % 233280; return rnd / 233280; }
+    function pick(arr, w){ var t = r() * w.reduce(function(a,b){return a+b;}), s = 0; for (var i=0;i<arr.length;i++){ s += w[i]; if (t <= s) return arr[i]; } return arr[0]; }
+    var srcs = ["utm_source=instagram&utm_campaign=beta","utm_source=facebook&utm_campaign=beta","direct","referrer=https://wa.me/"];
+    for (var i = 0; i < 46; i++) {
+      var row = {email:"sample" + (i+1) + "@example.com", created_at:new Date(Date.now() - Math.floor(r()*12)*864e5 - r()*3e7).toISOString(), device: r() > .35 ? "iPhone" : "Android", source: pick(srcs,[5,3,2,1])};
+      QUESTIONS.forEach(function(q){ row[q.key] = pick(q.a, [5,4,3,1.5,.6]); });
+      out.push(row);
+    }
+    return out.sort(function(a,b){ return a.created_at < b.created_at ? 1 : -1; });
+  }
+
+  /* ---------- start ---------- */
+  if (demo) { load(); return; }
+  if (!sb) { showLogin("Couldn't load the sign in tool. Check your connection and refresh.", true); return; }
+  sb.auth.getSession().then(function(r){ if (r.data && r.data.session) load(); else showLogin(""); });
+})();
+</script>
+</body>
+</html>
